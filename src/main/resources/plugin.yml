@@ -1,0 +1,29 @@
+name: money
+version: '${project.version}'
+main: merlin.plugin.money.Money
+api-version: '1.21'
+authors: [ Merlin ]
+description: Money is a plugin for Minecraft that introduces an economic system.
+
+load: POSTWORLD
+
+commands:
+  coins:
+    description: Zeigt Befehle des Money-Plugins
+    usage: /<command> [scoreboard]
+    permissions:
+      money.commands.coins.blocks.*:
+        description: Allows you to add blocks.
+        default: op
+      money.commands.coins.scoreboard:
+        description: Allows you to use the scoreboard.
+        default: true
+      money.commands.coins.balance:
+        description: Allows you to see your balance.
+        default: true
+      money.commands.coins.blocks:
+        description: Allows you to see the blocks and how much coins they give you.
+        default: true
+      money.commands.npc.*:
+        description: Allows you to use the npc commands.
+        default: op
