@@ -1,5 +1,8 @@
 package merlin.plugin.money.player;
 
+import merlin.plugin.money.SetMethodReturn;
+import merlin.plugin.money.SetResult;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.HashMap;
@@ -41,23 +44,26 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
         coinsWallet = 0f;
     }
 
-    public boolean setProfession(final Profession newProfession) {
+    public SetMethodReturn setProfession(final Profession newProfession) {
         float costsForProfessionChange = 0f;
 
         if (profession == Profession.NONE) {
             costsForProfessionChange = 500f;
         } else {
             if(profession == newProfession) {
-                return false;
+                return new SetMethodReturn(ChatColor.DARK_RED + "You already have the profession.", SetResult.FAILURE);
             }
             costsForProfessionChange = 10_000f;
         }
 
+        final Profession oldProfession = profession;
         if(removeCoins(costsForProfessionChange)) {
             profession = newProfession;
+            return new SetMethodReturn("You updated your profession from " + ChatColor.DARK_AQUA + oldProfession + ChatColor.WHITE + " to " + ChatColor.DARK_AQUA + profession, SetResult.SUCCESS);
+        } else {
+            return new SetMethodReturn("You don't have enough Coins to change your profession " + ChatColor.DARK_AQUA + oldProfession + ChatColor.WHITE + " to " + ChatColor.DARK_AQUA + newProfession, SetResult.FAILURE);
         }
 
-        return true;
     }
 
     public boolean depositCoins(final Float coinsToDeposit) {

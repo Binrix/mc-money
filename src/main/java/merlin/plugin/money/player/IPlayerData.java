@@ -1,5 +1,7 @@
 package merlin.plugin.money.player;
 
+import merlin.plugin.money.SetMethodReturn;
+
 /**
  * Holds the information about the player and provides useful functions.
  */
@@ -31,9 +33,9 @@ public interface IPlayerData {
     /**
      * Sets a profession for the player.
      * @param newProfession The new profession to be set.
-     * @return True on success, otherwise false.
+     * @return Return object with message and result, if it was a success or a failure.
      */
-    boolean setProfession(final Profession newProfession);
+    SetMethodReturn setProfession(final Profession newProfession);
 
     /**
      * Adds an amount of coins to the account and removes it from the wallet.

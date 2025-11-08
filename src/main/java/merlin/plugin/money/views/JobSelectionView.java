@@ -1,6 +1,8 @@
 package merlin.plugin.money.views;
 
 import merlin.plugin.money.Money;
+import merlin.plugin.money.SetMethodReturn;
+import merlin.plugin.money.SetResult;
 import merlin.plugin.money.player.PlayerData;
 import merlin.plugin.money.player.Profession;
 import org.bukkit.Bukkit;
@@ -73,23 +75,22 @@ public class JobSelectionView implements Listener {
             if(meta != null) {
                 Profession profession = Profession.valueOf(meta.getDisplayName().toUpperCase());
                 PlayerData playerData = money.getPlayerData(player);
-                Profession oldProfession = playerData.getProfession();
-                if(playerData.setProfession(profession)) {
-                    player.sendMessage("You updated your profession from " + ChatColor.DARK_AQUA + oldProfession + ChatColor.WHITE + " to " + ChatColor.DARK_AQUA + profession);
-                } else {
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have enough Coins (10'000 Coins) to change your profession.");
+
+                SetMethodReturn result = playerData.setProfession(profession);
+                player.sendMessage(result.message);
+
+                if(result.result == SetResult.SUCCESS) {
+                    ItemStack jobLabel = new ItemStack(Material.NAME_TAG, 1);
+                    ItemMeta jobLabelMeta = jobLabel.getItemMeta();
+
+                    if(jobLabelMeta != null) {
+                        jobLabelMeta.setDisplayName("Your profession: " + profession);
+                        jobLabel.setItemMeta(jobLabelMeta);
+                    }
+
+                    Inventory playerInventory = player.getInventory();
+                    playerInventory.addItem(jobLabel);
                 }
-
-                ItemStack jobLabel = new ItemStack(Material.NAME_TAG, 1);
-                ItemMeta jobLabelMeta = jobLabel.getItemMeta();
-
-                if(jobLabelMeta != null) {
-                    jobLabelMeta.setDisplayName("Your profession: " + profession);
-                    jobLabel.setItemMeta(jobLabelMeta);
-                }
-
-                Inventory playerInventory = player.getInventory();
-                playerInventory.addItem(jobLabel);
             }
         } catch (Exception exception) {
             player.sendMessage(ChatColor.DARK_RED + "Error");

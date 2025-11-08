@@ -34,6 +34,7 @@ public class CommandHandler {
             return true;
         } catch (Exception exception) {
             player.sendMessage(ChatColor.DARK_RED + errorMessage);
+            plugin.getLogger().log(Level.WARNING, "Something went wrong: " + exception.getMessage());
             return false;
         }
     }
