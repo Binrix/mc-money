@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class CommandHandler {
         try {
             final Float coinsInWallet = money.getPlayerData(player).getCoinsWallet();
             final Float coinsInAccount = money.getPlayerData(player).getCoinsAccount();
-            player.sendMessage("In your wallet: " + ChatColor.GOLD + coinsInWallet + " Coins." + ChatColor.WHITE + "\nIn your account: " + ChatColor.GOLD + coinsInAccount + " Coins.");
+            player.sendMessage("In your wallet: " + ChatColor.GOLD + formatCoins(coinsInWallet) + " Coins." + ChatColor.WHITE + "\nIn your account: " + ChatColor.GOLD + formatCoins(coinsInAccount) + " Coins.");
 
             return true;
         } catch (Exception exception) {
@@ -181,10 +182,15 @@ public class CommandHandler {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUuid);
             String playerName = (offlinePlayer.getName() != null) ? offlinePlayer.getName() : "Unknown (" + playerUuid.toString().substring(0, 4) + "...)";
 
-            player.sendMessage(ChatColor.GREEN + String.valueOf(index) + ". " + playerName + ": " + ChatColor.GOLD + totalCoins + " Coins");
+            player.sendMessage(ChatColor.GREEN + String.valueOf(index) + ". " + playerName + ": " + ChatColor.GOLD + formatCoins(totalCoins) + " Coins");
             index++;
         }
         player.sendMessage(ChatColor.GOLD + "---------------------");
+    }
+
+    private static String formatCoins(final Float coins) {
+        DecimalFormat d1 = new DecimalFormat("#.##");
+        return d1.format(coins);
     }
 
     private static void createNPC(final World world, final String name, NPCType type, Location location, final Money plugin) {
