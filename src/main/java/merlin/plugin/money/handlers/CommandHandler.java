@@ -155,7 +155,7 @@ public class CommandHandler {
         List<Map.Entry<UUID, PlayerData>> topPlayers = new ArrayList<>(players.entrySet());
         topPlayers.sort(Map.Entry.comparingByValue((o1, o2) -> {
             final float totalCoins1 = o1.getCoinsWallet() + o1.getCoinsAccount();
-            final float totalCoins2 = o2.getCoinsWallet() + o2.getCoinsWallet();
+            final float totalCoins2 = o2.getCoinsWallet() + o2.getCoinsAccount();
 
             if(totalCoins1 > totalCoins2){
                 return 1;
