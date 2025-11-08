@@ -160,9 +160,9 @@ public class CommandHandler {
             final float totalCoins2 = o2.getCoinsWallet() + o2.getCoinsAccount();
 
             if(totalCoins1 > totalCoins2){
-                return 1;
-            } else if(totalCoins1 < totalCoins2) {
                 return -1;
+            } else if(totalCoins1 < totalCoins2) {
+                return 1;
             }
 
             return 0;

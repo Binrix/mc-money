@@ -40,6 +40,7 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
     public void addCoins(final Float coinsToAdd) {
         coinsWallet += coinsToAdd;
     }
+
     public void loseCoinsInWallet() {
         coinsWallet = 0f;
     }
@@ -93,6 +94,7 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
     public Float getCoinsWallet() {
         return coinsWallet;
     }
+
     public Float getCoinsAccount() {
         return coinsAccount;
     }
