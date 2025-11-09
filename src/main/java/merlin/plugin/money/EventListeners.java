@@ -13,19 +13,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class EventListeners implements Listener {
     private final Money plugin;
     private final MiningHandler miningHandler;
+
     public EventListeners(Money plugin) {
         this.plugin = plugin;
-        this.miningHandler = new MiningHandler(plugin.getBlocksToCoins());
+        this.miningHandler = new MiningHandler(plugin.getBlocks(), plugin.getMoneyConfiguration().wrongJobPenalty, plugin.getMoneyConfiguration().baseEfficiency);
     }
-
-    private final Float wrongJobPenalty = 0.4f;
-    private final Float baseEfficiency = 1f;
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -58,6 +57,11 @@ public class EventListeners implements Listener {
     }
 
     @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent playerLeave) {
+        plugin.saveConfig();
+    }
+
+    @EventHandler
     public void onPlayerDeath(PlayerDeathEvent deathEvent) {
         Player player = deathEvent.getEntity();
         plugin.getPlayerData(player).loseCoinsInWallet();
@@ -68,9 +72,7 @@ public class EventListeners implements Listener {
         Player player = breakEvent.getPlayer();
         Block block = breakEvent.getBlock();
 
-        final Float professionEfficiency = plugin.hasPlayerProfession(player, Profession.MINER) ? baseEfficiency : (baseEfficiency - wrongJobPenalty);
-
-        Float coins = miningHandler.handleMining(professionEfficiency, block);
+        Float coins = miningHandler.handleMining(plugin.hasPlayerProfession(player, Profession.MINER), block);
         this.plugin.addPlayerCoins(player, coins);
     }
 }

@@ -55,13 +55,13 @@ public interface IPlayerData {
      * Returns the amount of coins in the wallet of the player.
      * @return The amount of coins in the wallet.
      */
-    Float getCoinsWallet();
+    Float getCoinsInWallet();
 
     /**
      * Returns the amount of coins in the account of the player.
      * @return The amount of coins in the account.
      */
-    Float getCoinsAccount();
+    Float getCoinsInAccount();
 
     /**
      * Evaluates if the player has the given profession.

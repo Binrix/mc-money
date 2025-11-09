@@ -93,7 +93,7 @@ public class BankerView  implements Listener {
     private void depositCoins(final Player player) {
         try {
             final PlayerData playerData = plugin.getPlayerData(player);
-            final Float coinsToDeposit = playerData.getCoinsWallet();
+            final Float coinsToDeposit = playerData.getCoinsInWallet();
             if(playerData.depositCoins(coinsToDeposit)) {
                 player.sendMessage("You deposit " + ChatColor.GOLD + coinsToDeposit + " Coins");
             };

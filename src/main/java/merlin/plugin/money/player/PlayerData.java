@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerData implements ConfigurationSerializable, IPlayerData {
-    private Float coinsWallet;
-    private Float coinsAccount;
+    private Float coinsInWallet;
+    private Float coinsInAccount;
     private Profession profession;
 
-    public PlayerData(final Float coinsWallet, final Float coinsAccount, final Profession profession) {
-        this.coinsWallet = coinsWallet;
-        this.coinsAccount = coinsAccount;
+    public PlayerData(final Float coinsInWallet, final Float coinsInAccount, final Profession profession) {
+        this.coinsInWallet = coinsInWallet;
+        this.coinsInAccount = coinsInAccount;
         this.profession = profession;
     }
 
@@ -29,20 +29,20 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
     }
 
     public boolean removeCoins(final Float coinsToRemove) {
-        if(coinsWallet < coinsToRemove) {
+        if(coinsInWallet < coinsToRemove) {
             return false;
         }
 
-        coinsWallet -= coinsToRemove;
+        coinsInWallet -= coinsToRemove;
         return true;
     }
 
     public void addCoins(final Float coinsToAdd) {
-        coinsWallet += coinsToAdd;
+        coinsInWallet += coinsToAdd;
     }
 
     public void loseCoinsInWallet() {
-        coinsWallet = 0f;
+        coinsInWallet = 0f;
     }
 
     public SetMethodReturn setProfession(final Profession newProfession) {
@@ -68,35 +68,35 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
     }
 
     public boolean depositCoins(final Float coinsToDeposit) {
-        if(coinsToDeposit > coinsWallet) {
-            coinsAccount += coinsWallet;
-            coinsWallet = 0f;
+        if(coinsToDeposit > coinsInWallet) {
+            coinsInAccount += coinsInWallet;
+            coinsInWallet = 0f;
         } else {
-            coinsAccount += coinsToDeposit;
-            coinsWallet -= coinsToDeposit;
+            coinsInAccount += coinsToDeposit;
+            coinsInWallet -= coinsToDeposit;
         }
 
         return true;
     }
 
     public boolean withdraw(final Float coinsToWithdraw) {
-        if(coinsToWithdraw > coinsAccount) {
-            coinsWallet += coinsAccount;
-            coinsAccount = 0f;
+        if(coinsToWithdraw > coinsInAccount) {
+            coinsInWallet += coinsInAccount;
+            coinsInAccount = 0f;
         } else {
-            coinsWallet = coinsToWithdraw;
-            coinsAccount -= coinsToWithdraw;
+            coinsInWallet = coinsToWithdraw;
+            coinsInAccount -= coinsToWithdraw;
         }
 
         return true;
     }
 
-    public Float getCoinsWallet() {
-        return coinsWallet;
+    public Float getCoinsInWallet() {
+        return coinsInWallet;
     }
 
-    public Float getCoinsAccount() {
-        return coinsAccount;
+    public Float getCoinsInAccount() {
+        return coinsInAccount;
     }
 
     public boolean hasProfession(final Profession profession) {
@@ -106,15 +106,15 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
-        data.put("coinsWallet", coinsWallet);
-        data.put("coinsAccount", coinsAccount);
+        data.put("wallet", coinsInWallet);
+        data.put("account", coinsInAccount);
         data.put("profession", profession.name());
         return data;
     }
 
     public static PlayerData deserialize(Map<String, Object> map) {
-        final Float coinsWallet = ((Number) map.get("coinsWallet")).floatValue();
-        final Float coinsAccount = ((Number) map.get("coinsAccount")).floatValue();
+        final Float coinsWallet = ((Number) map.get("wallet")).floatValue();
+        final Float coinsAccount = ((Number) map.get("account")).floatValue();
         Profession profession = Profession.valueOf((String) map.get("profession"));
 
         return new PlayerData(coinsWallet, coinsAccount, profession);

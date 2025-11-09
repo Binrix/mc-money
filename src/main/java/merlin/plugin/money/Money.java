@@ -1,6 +1,7 @@
 package merlin.plugin.money;
 
 import merlin.plugin.money.commands.CoinsCommand;
+import merlin.plugin.money.configuration.MoneyConfiguration;
 import merlin.plugin.money.player.PlayerData;
 import merlin.plugin.money.player.Profession;
 import merlin.plugin.money.views.BankerView;
@@ -21,10 +22,11 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public final class Money extends JavaPlugin {
-    private final Map<UUID, PlayerData> players = new HashMap<>();
+    private Map<UUID, PlayerData> players = new HashMap<>();
     private final Map<Material, Float> blocksToCoins = new HashMap<>();
-    private final String playerConfigSection = "player-coins";
-    private final String blocksToCoinsSection = "blocks-to-coins";
+    private final String blocksSection = "blocks";
+    private final String configurationSection = "config";
+    private MoneyConfiguration moneyConfiguration = new MoneyConfiguration();
     private final JobSelectionView jobSelectionView = new JobSelectionView(this);
     private final BankerView bankerView = new BankerView(this);
 
@@ -32,6 +34,10 @@ public final class Money extends JavaPlugin {
     public void onEnable() {
         PluginManager pm = Bukkit.getServer().getPluginManager();
         ConfigurationSerialization.registerClass(PlayerData.class, "PlayerData");
+        ConfigurationSerialization.registerClass(MoneyConfiguration.class, "Configuration");
+
+        loadConfiguration();
+        loadBlocksToCoins();
 
         pm.registerEvents(new EventListeners(this), this);
         pm.registerEvents(jobSelectionView, this);
@@ -42,8 +48,7 @@ public final class Money extends JavaPlugin {
             coinsCommand.setExecutor(new CoinsCommand(this));
         }
 
-        loadCoinsData();
-        loadBlocksToCoins();
+        players = PlayerDataFile.loadPlayerData(this);
 
         new BukkitRunnable() {
             @Override
@@ -60,13 +65,17 @@ public final class Money extends JavaPlugin {
         return bankerView;
     }
 
+    public MoneyConfiguration getMoneyConfiguration() {
+        return moneyConfiguration;
+    }
+
     @Override
     public void onDisable() {
         saveCoinsData();
     }
 
     private void loadBlocksToCoins() {
-        ConfigurationSection configSection = getConfig().getConfigurationSection(blocksToCoinsSection);
+        ConfigurationSection configSection = getConfig().getConfigurationSection(blocksSection);
 
         if (configSection == null) {
             getLogger().log(Level.WARNING, "No blocks to coins provided.");
@@ -91,7 +100,7 @@ public final class Money extends JavaPlugin {
         getLogger().log(Level.FINE, "Loaded " + blocksToCoins.size() + " blocks.");
     }
 
-    public Map<Material, Float> getBlocksToCoins() {
+    public Map<Material, Float> getBlocks() {
         return blocksToCoins;
     }
 
@@ -123,12 +132,27 @@ public final class Money extends JavaPlugin {
         return players.containsKey(playerUuid);
     }
 
+    private void loadConfiguration() {
+        if(getConfig().contains(configurationSection)) {
+            moneyConfiguration = getConfig().getObject(configurationSection, MoneyConfiguration.class);
+            getLogger().log(Level.INFO, "Configuration was loaded.");
+        } else {
+            getLogger().log(Level.INFO, "Configuration didn't exist, created defaults...");
+            moneyConfiguration = new MoneyConfiguration();
+        }
+    }
+
+    private void saveConfiguration() {
+        getConfig().set(configurationSection, moneyConfiguration);
+        saveConfig();
+    }
+
     private void saveBlocksToCoinsData() {
-        if (getConfig().contains(blocksToCoinsSection)) {
-            getConfig().set(blocksToCoinsSection, null);
+        if (getConfig().contains(blocksSection)) {
+            getConfig().set(blocksSection, null);
         }
 
-        ConfigurationSection configurationSection = getConfig().createSection(blocksToCoinsSection);
+        ConfigurationSection configurationSection = getConfig().createSection(blocksSection);
 
         for(Map.Entry<Material, Float> entry : blocksToCoins.entrySet()) {
             configurationSection.set(entry.getKey().toString(), entry.getValue());
@@ -137,31 +161,7 @@ public final class Money extends JavaPlugin {
     }
 
     private void saveCoinsData () {
-        if (getConfig().contains(playerConfigSection)) {
-            getConfig().set(playerConfigSection, null);
-        }
-
-        ConfigurationSection configSection = getConfig().createSection(playerConfigSection);
-
-        for (Map.Entry<UUID, PlayerData> entry : players.entrySet()) {
-            configSection.set(entry.getKey().toString(), entry.getValue());
-        }
-        saveConfig();
-    }
-
-    private void loadCoinsData () {
-        if (!getConfig().contains(playerConfigSection)) {
-            return;
-        }
-
-        ConfigurationSection configSection = getConfig().getConfigurationSection(playerConfigSection);
-
-        if (configSection != null) {
-            for (String uuidString : configSection.getKeys(false)) {
-                PlayerData playerData = configSection.getObject(uuidString, PlayerData.class);
-                UUID uuid = UUID.fromString(uuidString);
-                players.put(uuid, playerData);
-            }
-        }
+        PlayerDataFile.savePlayerData(this, players);
+        saveConfiguration();
     }
 }

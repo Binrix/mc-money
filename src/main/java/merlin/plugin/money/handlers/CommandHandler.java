@@ -66,8 +66,8 @@ public class CommandHandler {
 
     public static boolean showPlayerBalance(final Player player, final Money money, final String[] args) {
         try {
-            final Float coinsInWallet = money.getPlayerData(player).getCoinsWallet();
-            final Float coinsInAccount = money.getPlayerData(player).getCoinsAccount();
+            final Float coinsInWallet = money.getPlayerData(player).getCoinsInWallet();
+            final Float coinsInAccount = money.getPlayerData(player).getCoinsInAccount();
             player.sendMessage("In your wallet: " + ChatColor.GOLD + formatCoins(coinsInWallet) + " Coins." + ChatColor.WHITE + "\nIn your account: " + ChatColor.GOLD + formatCoins(coinsInAccount) + " Coins.");
 
             return true;
@@ -104,14 +104,15 @@ public class CommandHandler {
 
     public static boolean showBlockValues(final Player player, final Money plugin, final String[] args) {
         try {
-            final Map<Material, Float> blocksToCoins = plugin.getBlocksToCoins();
+            final Map<Material, Float> blocksToCoins = plugin.getBlocks();
 
             if(blocksToCoins.isEmpty()) {
                 player.sendMessage("No blocks are configured.");
                 return true;
             }
 
-            for(Map.Entry<Material, Float> block : blocksToCoins.entrySet()) {
+            final List<Map.Entry<Material, Float>> sortedBlocks = sortListOfBlocksByCoins(blocksToCoins);
+            for(Map.Entry<Material, Float> block : sortedBlocks) {
                 player.sendMessage("Block: " + ChatColor.DARK_AQUA + block.getKey().name() + ChatColor.WHITE + ", value: " + ChatColor.GOLD + block.getValue() + " Coins");
             }
 
@@ -155,9 +156,9 @@ public class CommandHandler {
 
     private static List<Map.Entry<UUID, PlayerData>> sortListOfPlayersByCoins(final Map<UUID, PlayerData> players) {
         List<Map.Entry<UUID, PlayerData>> topPlayers = new ArrayList<>(players.entrySet());
-        topPlayers.sort(Map.Entry.comparingByValue((o1, o2) -> {
-            final float totalCoins1 = o1.getCoinsWallet() + o1.getCoinsAccount();
-            final float totalCoins2 = o2.getCoinsWallet() + o2.getCoinsAccount();
+        topPlayers.sort(Map.Entry.comparingByValue((p1, p2) -> {
+            final float totalCoins1 = p1.getCoinsInWallet() + p1.getCoinsInAccount();
+            final float totalCoins2 = p2.getCoinsInWallet() + p2.getCoinsInAccount();
 
             if(totalCoins1 > totalCoins2){
                 return -1;
@@ -171,13 +172,28 @@ public class CommandHandler {
         return topPlayers.stream().limit(5).collect(Collectors.toList());
     }
 
+    private static List<Map.Entry<Material, Float>> sortListOfBlocksByCoins(final Map<Material, Float> blocks) {
+        List<Map.Entry<Material, Float>> sortedBlocks = new ArrayList<>(blocks.entrySet());
+        sortedBlocks.sort(Map.Entry.comparingByValue((b1, b2) -> {
+            if(b1 > b2) {
+                return -1;
+            } else if(b1 < b2) {
+                return 1;
+            }
+
+            return 0;
+        }));
+
+        return sortedBlocks;
+    }
+
     private static void printListOfPlayersToChat(final Player player, final List<Map.Entry<UUID, PlayerData>> topPlayers) {
         player.sendMessage(ChatColor.GOLD + "--- Coins Scoreboard ---");
         int index = 1;
         for (Map.Entry<UUID, PlayerData> entry : topPlayers) {
             UUID playerUuid = entry.getKey();
             PlayerData playerData = entry.getValue();
-            float totalCoins = playerData.getCoinsWallet() + playerData.getCoinsAccount();
+            float totalCoins = playerData.getCoinsInWallet() + playerData.getCoinsInAccount();
 
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUuid);
             String playerName = (offlinePlayer.getName() != null) ? offlinePlayer.getName() : "Unknown (" + playerUuid.toString().substring(0, 4) + "...)";
