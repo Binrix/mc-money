@@ -1,15 +1,19 @@
 package merlin.plugin.money;
 
+import merlin.plugin.money.handlers.HuntingHandler;
 import merlin.plugin.money.handlers.MiningHandler;
 import merlin.plugin.money.npcs.NPCType;
 import merlin.plugin.money.player.Profession;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -17,13 +21,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Collections;
+import java.util.logging.Level;
+
 public class EventListeners implements Listener {
     private final Money plugin;
     private final MiningHandler miningHandler;
+    private final HuntingHandler huntingHandler;
 
     public EventListeners(Money plugin) {
         this.plugin = plugin;
         this.miningHandler = new MiningHandler(plugin.getBlocks(), plugin.getMoneyConfiguration().wrongJobPenalty, plugin.getMoneyConfiguration().baseEfficiency);
+        this.huntingHandler = new HuntingHandler(Collections.emptyMap(), plugin.getMoneyConfiguration().wrongJobPenalty, plugin.getMoneyConfiguration().baseEfficiency);
     }
 
     @EventHandler
@@ -65,6 +74,19 @@ public class EventListeners implements Listener {
     public void onPlayerDeath(PlayerDeathEvent deathEvent) {
         Player player = deathEvent.getEntity();
         plugin.getPlayerData(player).loseCoinsInWallet();
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent deathEvent) {
+        final LivingEntity entity = deathEvent.getEntity();
+        final Player player = entity.getKiller();
+
+        if(player == null) {
+            return;
+        }
+
+        Float coins = huntingHandler.handleHunting(plugin.hasPlayerProfession(player, Profession.HUNTER), entity);
+        this.plugin.addPlayerCoins(player, coins);
     }
 
     @EventHandler

@@ -7,10 +7,12 @@ import merlin.plugin.money.player.Profession;
 import merlin.plugin.money.views.BankerView;
 import merlin.plugin.money.views.JobSelectionView;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,7 +26,9 @@ import java.util.logging.Level;
 public final class Money extends JavaPlugin {
     private Map<UUID, PlayerData> players = new HashMap<>();
     private final Map<Material, Float> blocksToCoins = new HashMap<>();
+    private final Map<EntityType, Float> entities = new HashMap<>();
     private final String blocksSection = "blocks";
+    private final String entitySection = "mobs";
     private final String configurationSection = "config";
     private MoneyConfiguration moneyConfiguration = new MoneyConfiguration();
     private final JobSelectionView jobSelectionView = new JobSelectionView(this);
@@ -38,6 +42,7 @@ public final class Money extends JavaPlugin {
 
         loadConfiguration();
         loadBlocksToCoins();
+        loadEntities();
 
         pm.registerEvents(new EventListeners(this), this);
         pm.registerEvents(jobSelectionView, this);
@@ -78,7 +83,7 @@ public final class Money extends JavaPlugin {
         ConfigurationSection configSection = getConfig().getConfigurationSection(blocksSection);
 
         if (configSection == null) {
-            getLogger().log(Level.WARNING, "No blocks to coins provided.");
+            getLogger().log(Level.WARNING, "No blocks have been configured.");
             return;
         }
 
@@ -100,6 +105,30 @@ public final class Money extends JavaPlugin {
         getLogger().log(Level.FINE, "Loaded " + blocksToCoins.size() + " blocks.");
     }
 
+    private void loadEntities() {
+        ConfigurationSection configSection = getConfig().getConfigurationSection(entitySection);
+
+        if(configSection == null) {
+            getLogger().log(Level.WARNING, "No mobs have been configured.");
+            return;
+        }
+
+        for(String entity : configSection.getKeys(false)) {
+            try {
+                Object entityCoinsInConfig = configSection.get(entity);
+
+                if(entityCoinsInConfig == null) {
+                    continue;
+                }
+
+                Float coins = Float.parseFloat(entityCoinsInConfig.toString());
+                entities.put(EntityType.valueOf(entity), coins);
+            } catch (Exception exception) {
+                getLogger().log(Level.SEVERE, "Could not parse value of " + entity);
+            }
+        }
+    }
+
     public Map<Material, Float> getBlocks() {
         return blocksToCoins;
     }
@@ -117,6 +146,13 @@ public final class Money extends JavaPlugin {
 
     public boolean hasPlayerProfession(final Player player, final Profession profession) {
         return getPlayerData(player).hasProfession(profession);
+    }
+
+    public void addNewEntity(final EntityType type, final Float value) {
+        entities.put(type, value);
+
+        getLogger().log(Level.INFO, "Add entity of type " + ChatColor.DARK_AQUA + type + ChatColor.WHITE + " with " + ChatColor.GOLD + value + " Coins.");
+        saveEntityCoinsData();
     }
 
     public void addNewBlockToCoins(final Material material, final Float value) {
@@ -158,6 +194,21 @@ public final class Money extends JavaPlugin {
             configurationSection.set(entry.getKey().toString(), entry.getValue());
         }
         saveConfig();
+    }
+
+    private void saveEntityCoinsData() {
+        if(getConfig().contains(entitySection)) {
+            getConfig().set(entitySection, null);
+        }
+
+        ConfigurationSection configSection = getConfig().createSection(entitySection);
+
+        for(Map.Entry<EntityType, Float> entry : entities.entrySet()) {
+            configSection.set(entry.getKey().toString(), entry.getValue());
+        }
+        saveConfig();
+
+        getLogger().log(Level.INFO, "Saved " + );
     }
 
     private void saveCoinsData () {

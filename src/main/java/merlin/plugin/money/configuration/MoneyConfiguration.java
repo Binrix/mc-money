@@ -33,10 +33,10 @@ public class MoneyConfiguration implements ConfigurationSerializable {
     }
 
     public static MoneyConfiguration deserialize(Map<String, Object> map) {
-        final Float wrongJobPenalty = ((Float) map.get("wrongJobPenalty"));
-        final Float costsForChangingJob = ((Float) map.get("costsForChangingJob"));
-        final Float costsForApplyingFirstTime = ((Float) map.get("costsForApplyingFirstTime"));
-        final Float baseEfficiency = ((Float) map.get("baseEfficiency"));
+        final Float wrongJobPenalty = ((Number) map.get("wrongJobPenalty")).floatValue();
+        final Float costsForChangingJob = ((Number) map.get("costsForChangingJob")).floatValue();
+        final Float costsForApplyingFirstTime = ((Number) map.get("costsForApplyingFirstTime")).floatValue();
+        final Float baseEfficiency = ((Number) map.get("baseEfficiency")).floatValue();
 
         return new MoneyConfiguration(wrongJobPenalty, costsForChangingJob, costsForApplyingFirstTime, baseEfficiency);
     }
