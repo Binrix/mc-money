@@ -17,14 +17,6 @@ public class HuntingHandler {
     }
 
     public Float handleHunting(final boolean hasPlayerProfession, final LivingEntity entity) {
-        EntityType type = entity.getType();
-
-        System.out.println("type: " + type);
-
-        for(Map.Entry<EntityType, Float> f : entities.entrySet() ) {
-            System.out.println("entity type: " + f.getKey() + ", value: " + f.getValue());
-        }
-
         if(entities.containsKey(entity.getType())) {
             return entities.get(entity.getType()) * (hasPlayerProfession ? baseEfficiency : wrongJobPenalty);
         }

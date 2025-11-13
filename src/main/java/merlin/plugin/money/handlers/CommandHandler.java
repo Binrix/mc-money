@@ -87,7 +87,7 @@ public class CommandHandler {
             final Float value = Float.valueOf(args[1]);
 
             plugin.addNewEntity(entityType, value);
-            player.sendMessage("Entity " + ChatColor.DARK_AQUA + ChatColor.WHITE + " with " + ChatColor.GOLD + value + ChatColor.WHITE + " was added.");
+            player.sendMessage("Add entity of type " + ChatColor.DARK_AQUA + entityType + ChatColor.WHITE + " with " + ChatColor.GOLD + value + " Coins.");
         } catch (Exception exception) {
             player.sendMessage(ChatColor.DARK_RED + "An error occurred adding the entity.");
         }

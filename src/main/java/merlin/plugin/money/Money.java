@@ -7,12 +7,10 @@ import merlin.plugin.money.player.Profession;
 import merlin.plugin.money.views.BankerView;
 import merlin.plugin.money.views.JobSelectionView;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -26,7 +24,7 @@ import java.util.logging.Level;
 
 public final class Money extends JavaPlugin {
     private Map<UUID, PlayerData> players = new HashMap<>();
-    private final Map<Material, Float> blocksToCoins = new HashMap<>();
+    private final Map<Material, Float> blocks = new HashMap<>();
     private final Map<EntityType, Float> entities = new HashMap<>();
     private final String blocksSection = "blocks";
     private final String entitySection = "mobs";
@@ -101,21 +99,17 @@ public final class Money extends JavaPlugin {
                 }
 
                 Float coins = Float.parseFloat(coinsInConfig.toString());
-                blocksToCoins.put(Material.valueOf(material), coins);
+                blocks.put(Material.valueOf(material), coins);
             } catch (Exception exception) {
                 getLogger().log(Level.SEVERE, "Could not parse value of " + material);
             }
         }
 
-        getLogger().log(Level.FINE, "Loaded " + blocksToCoins.size() + " blocks.");
+        getLogger().log(Level.FINE, "Loaded " + blocks.size() + " blocks.");
     }
 
     private void loadEntities() {
         ConfigurationSection configSection = getConfig().getConfigurationSection(entitySection);
-
-        getLogger().log(Level.INFO, "Load entities");
-        getLogger().log(Level.INFO, "configSection: " + configSection);
-
         if(configSection == null) {
             getLogger().log(Level.WARNING, "No mobs have been configured.");
             return;
@@ -123,11 +117,7 @@ public final class Money extends JavaPlugin {
 
         for(String entity : configSection.getKeys(false)) {
             try {
-                getLogger().log(Level.INFO, "entity: " + entity);
-
                 Object entityCoinsInConfig = configSection.get(entity);
-
-                getLogger().log(Level.INFO, "entityCoinsObject: " +entityCoinsInConfig);
 
                 if(entityCoinsInConfig == null) {
                     continue;
@@ -139,10 +129,12 @@ public final class Money extends JavaPlugin {
                 getLogger().log(Level.SEVERE, "Could not parse value of " + entity);
             }
         }
+
+        getLogger().log(Level.FINE, "Loaded " + entities.size() + " blocks.");
     }
 
     public Map<Material, Float> getBlocks() {
-        return blocksToCoins;
+        return blocks;
     }
 
     public PlayerData getPlayerData(final Player player) {
@@ -162,13 +154,11 @@ public final class Money extends JavaPlugin {
 
     public void addNewEntity(final EntityType type, final Float value) {
         entities.put(type, value);
-
-        getLogger().log(Level.INFO, "Add entity of type " + ChatColor.DARK_AQUA + type + ChatColor.WHITE + " with " + ChatColor.GOLD + value + " Coins.");
         saveEntityCoinsData();
     }
 
     public void addNewBlockToCoins(final Material material, final Float value) {
-        blocksToCoins.put(material, value);
+        blocks.put(material, value);
         saveBlocksToCoinsData();
     }
 
@@ -185,7 +175,7 @@ public final class Money extends JavaPlugin {
             moneyConfiguration = getConfig().getObject(configurationSection, MoneyConfiguration.class);
             getLogger().log(Level.INFO, "Configuration was loaded.");
         } else {
-            getLogger().log(Level.INFO, "Configuration didn't exist, created defaults...");
+            getLogger().log(Level.INFO, "Configuration didn't exist, create defaults...");
             moneyConfiguration = new MoneyConfiguration();
         }
     }
@@ -202,7 +192,7 @@ public final class Money extends JavaPlugin {
 
         ConfigurationSection configurationSection = getConfig().createSection(blocksSection);
 
-        for(Map.Entry<Material, Float> entry : blocksToCoins.entrySet()) {
+        for(Map.Entry<Material, Float> entry : blocks.entrySet()) {
             configurationSection.set(entry.getKey().toString(), entry.getValue());
         }
         saveConfig();
