@@ -77,6 +77,24 @@ public class CommandHandler {
         }
     }
 
+    public static boolean addEntity(final Player player, final Money plugin, final String[] args) {
+        try {
+            if(!player.isOp()) {
+                player.sendMessage(ChatColor.DARK_RED + "You don't have permissions to use this command.");
+            }
+
+            final EntityType entityType = EntityType.valueOf(args[0]);
+            final Float value = Float.valueOf(args[1]);
+
+            plugin.addNewEntity(entityType, value);
+            player.sendMessage("Add entity of type " + ChatColor.DARK_AQUA + entityType + ChatColor.WHITE + " with " + ChatColor.GOLD + value + " Coins.");
+        } catch (Exception exception) {
+            player.sendMessage(ChatColor.DARK_RED + "An error occurred adding the entity.");
+        }
+
+        return true;
+    }
+
     public static boolean addBlockToValue(final Player player, final Money plugin, final String[] args) {
         try {
             if(!player.isOp()) {

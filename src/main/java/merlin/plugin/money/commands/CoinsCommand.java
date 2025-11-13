@@ -22,6 +22,7 @@ public class CoinsCommand implements CommandExecutor, TabCompleter {
         subCommands.put("blocks.add", CommandHandler::addBlockToValue);
         subCommands.put("job", CommandHandler::showPlayerProfession);
         subCommands.put("npc.add", CommandHandler::createNPC);
+        subCommands.put("entity.add", CommandHandler::addEntity);
 
         this.plugin = plugin;
     }
