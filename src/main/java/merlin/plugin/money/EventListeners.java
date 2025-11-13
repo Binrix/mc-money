@@ -22,7 +22,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Collections;
-import java.util.logging.Level;
 
 public class EventListeners implements Listener {
     private final Money plugin;
@@ -31,8 +30,12 @@ public class EventListeners implements Listener {
 
     public EventListeners(Money plugin) {
         this.plugin = plugin;
-        this.miningHandler = new MiningHandler(plugin.getBlocks(), plugin.getMoneyConfiguration().wrongJobPenalty, plugin.getMoneyConfiguration().baseEfficiency);
-        this.huntingHandler = new HuntingHandler(Collections.emptyMap(), plugin.getMoneyConfiguration().wrongJobPenalty, plugin.getMoneyConfiguration().baseEfficiency);
+
+        final Float wrongJobPenalty = plugin.getMoneyConfiguration().wrongJobPenalty;
+        final Float baseEfficiency = plugin.getMoneyConfiguration().baseEfficiency;
+
+        this.miningHandler = new MiningHandler(plugin.getBlocks(), wrongJobPenalty, baseEfficiency);
+        this.huntingHandler = new HuntingHandler(plugin.getEntities(), wrongJobPenalty, baseEfficiency);
     }
 
     @EventHandler

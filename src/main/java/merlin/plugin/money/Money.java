@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -70,6 +71,10 @@ public final class Money extends JavaPlugin {
         return bankerView;
     }
 
+    public Map<EntityType, Float> getEntities() {
+        return entities;
+    }
+
     public MoneyConfiguration getMoneyConfiguration() {
         return moneyConfiguration;
     }
@@ -108,6 +113,9 @@ public final class Money extends JavaPlugin {
     private void loadEntities() {
         ConfigurationSection configSection = getConfig().getConfigurationSection(entitySection);
 
+        getLogger().log(Level.INFO, "Load entities");
+        getLogger().log(Level.INFO, "configSection: " + configSection);
+
         if(configSection == null) {
             getLogger().log(Level.WARNING, "No mobs have been configured.");
             return;
@@ -115,7 +123,11 @@ public final class Money extends JavaPlugin {
 
         for(String entity : configSection.getKeys(false)) {
             try {
+                getLogger().log(Level.INFO, "entity: " + entity);
+
                 Object entityCoinsInConfig = configSection.get(entity);
+
+                getLogger().log(Level.INFO, "entityCoinsObject: " +entityCoinsInConfig);
 
                 if(entityCoinsInConfig == null) {
                     continue;
@@ -207,8 +219,6 @@ public final class Money extends JavaPlugin {
             configSection.set(entry.getKey().toString(), entry.getValue());
         }
         saveConfig();
-
-        getLogger().log(Level.INFO, "Saved " + );
     }
 
     private void saveCoinsData () {
