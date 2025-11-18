@@ -59,6 +59,8 @@ public class EventListeners implements Listener {
                 plugin.getJobSelectionView().openJobSelectionView(player);
             } else if(type.equals(NPCType.BANKER)) {
                 plugin.getBankerView().openBankerView(player);
+            } else if(type.equals(NPCType.SMITH)) {
+                plugin.getSmithView().openSmithView(player);
             }
 
             interactAtEntityEvent.setCancelled(true);

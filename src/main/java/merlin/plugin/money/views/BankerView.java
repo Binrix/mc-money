@@ -1,5 +1,6 @@
 package merlin.plugin.money.views;
 
+import merlin.plugin.money.Helpers;
 import merlin.plugin.money.Money;
 import merlin.plugin.money.player.PlayerData;
 import org.bukkit.Bukkit;
@@ -23,7 +24,7 @@ public class BankerView  implements Listener {
     private final Money plugin;
 
     public BankerView(final Money plugin) {
-        inventory = Bukkit.createInventory(null, 9, "Shop");
+        inventory = Bukkit.createInventory(null, 9, "Banker");
         this.plugin = plugin;
         initializeItems();
     }
@@ -95,7 +96,7 @@ public class BankerView  implements Listener {
             final PlayerData playerData = plugin.getPlayerData(player);
             final Float coinsToDeposit = playerData.getCoinsInWallet();
             if(playerData.depositCoins(coinsToDeposit)) {
-                player.sendMessage("You deposit " + ChatColor.GOLD + coinsToDeposit + " Coins");
+                player.sendMessage("You deposit " + ChatColor.GOLD + Helpers.formatCoins(coinsToDeposit) + " Coins");
             };
         } catch (Exception exception) {
             plugin.getLogger().log(Level.WARNING, "Something went wrong depositing coins. Details: " + exception.getMessage());

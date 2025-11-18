@@ -6,6 +6,7 @@ import merlin.plugin.money.player.PlayerData;
 import merlin.plugin.money.player.Profession;
 import merlin.plugin.money.views.BankerView;
 import merlin.plugin.money.views.JobSelectionView;
+import merlin.plugin.money.views.SmithView;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
@@ -32,6 +33,7 @@ public final class Money extends JavaPlugin {
     private MoneyConfiguration moneyConfiguration = new MoneyConfiguration();
     private final JobSelectionView jobSelectionView = new JobSelectionView(this);
     private final BankerView bankerView = new BankerView(this);
+    private final SmithView smithView = new SmithView(this);
 
     @Override
     public void onEnable() {
@@ -46,6 +48,7 @@ public final class Money extends JavaPlugin {
         pm.registerEvents(new EventListeners(this), this);
         pm.registerEvents(jobSelectionView, this);
         pm.registerEvents(bankerView, this);
+        pm.registerEvents(smithView, this);
 
         PluginCommand coinsCommand = this.getCommand("coins");
         if (coinsCommand != null) {
@@ -67,6 +70,9 @@ public final class Money extends JavaPlugin {
     }
     public BankerView getBankerView() {
         return bankerView;
+    }
+    public SmithView getSmithView() {
+        return smithView;
     }
 
     public Map<EntityType, Float> getEntities() {
@@ -175,7 +181,7 @@ public final class Money extends JavaPlugin {
             moneyConfiguration = getConfig().getObject(configurationSection, MoneyConfiguration.class);
             getLogger().log(Level.INFO, "Configuration was loaded.");
         } else {
-            getLogger().log(Level.INFO, "Configuration didn't exist, create defaults...");
+            getLogger().log(Level.INFO, "Configuration doesn't exist, created defaults...");
             moneyConfiguration = new MoneyConfiguration();
         }
     }

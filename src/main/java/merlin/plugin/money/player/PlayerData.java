@@ -4,6 +4,8 @@ import merlin.plugin.money.SetMethodReturn;
 import merlin.plugin.money.SetResult;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,8 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
     private Float coinsInWallet;
     private Float coinsInAccount;
     private Profession profession;
+
+//    public Map<ItemStack, Float> itemsToRepair
 
     public PlayerData(final Float coinsInWallet, final Float coinsInAccount, final Profession profession) {
         this.coinsInWallet = coinsInWallet;
@@ -84,7 +88,7 @@ public class PlayerData implements ConfigurationSerializable, IPlayerData {
             coinsInWallet += coinsInAccount;
             coinsInAccount = 0f;
         } else {
-            coinsInWallet = coinsToWithdraw;
+            coinsInWallet += coinsToWithdraw;
             coinsInAccount -= coinsToWithdraw;
         }
 

@@ -1,5 +1,6 @@
 package merlin.plugin.money.handlers;
 
+import merlin.plugin.money.Helpers;
 import merlin.plugin.money.Money;
 import merlin.plugin.money.npcs.NPCType;
 import merlin.plugin.money.player.PlayerData;
@@ -68,7 +69,7 @@ public class CommandHandler {
         try {
             final Float coinsInWallet = money.getPlayerData(player).getCoinsInWallet();
             final Float coinsInAccount = money.getPlayerData(player).getCoinsInAccount();
-            player.sendMessage("In your wallet: " + ChatColor.GOLD + formatCoins(coinsInWallet) + " Coins." + ChatColor.WHITE + "\nIn your account: " + ChatColor.GOLD + formatCoins(coinsInAccount) + " Coins.");
+            player.sendMessage("In your wallet: " + ChatColor.GOLD + Helpers.formatCoins(coinsInWallet) + " Coins." + ChatColor.WHITE + "\nIn your account: " + ChatColor.GOLD + Helpers.formatCoins(coinsInAccount) + " Coins.");
 
             return true;
         } catch (Exception exception) {
@@ -216,15 +217,10 @@ public class CommandHandler {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUuid);
             String playerName = (offlinePlayer.getName() != null) ? offlinePlayer.getName() : "Unknown (" + playerUuid.toString().substring(0, 4) + "...)";
 
-            player.sendMessage(ChatColor.GREEN + String.valueOf(index) + ". " + playerName + ": " + ChatColor.GOLD + formatCoins(totalCoins) + " Coins");
+            player.sendMessage(ChatColor.GREEN + String.valueOf(index) + ". " + playerName + ": " + ChatColor.GOLD + Helpers.formatCoins(totalCoins) + " Coins");
             index++;
         }
         player.sendMessage(ChatColor.GOLD + "---------------------");
-    }
-
-    private static String formatCoins(final Float coins) {
-        DecimalFormat d1 = new DecimalFormat("#.##");
-        return d1.format(coins);
     }
 
     private static void createNPC(final World world, final String name, NPCType type, Location location, final Money plugin) {
