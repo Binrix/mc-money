@@ -2,8 +2,10 @@ package merlin.plugin.money;
 
 import merlin.plugin.money.commands.CoinsCommand;
 import merlin.plugin.money.configuration.MoneyConfiguration;
+import merlin.plugin.money.eventlisteners.HuntingEventsListener;
+import merlin.plugin.money.eventlisteners.MiningEventsListener;
+import merlin.plugin.money.eventlisteners.PlayerEventsListener;
 import merlin.plugin.money.player.PlayerData;
-import merlin.plugin.money.player.Profession;
 import merlin.plugin.money.views.BankerView;
 import merlin.plugin.money.views.JobSelectionView;
 import merlin.plugin.money.views.SmithView;
@@ -42,10 +44,13 @@ public final class Money extends JavaPlugin {
         ConfigurationSerialization.registerClass(MoneyConfiguration.class, "Configuration");
 
         loadConfiguration();
-        loadBlocksToCoins();
+        loadBlocks();
         loadEntities();
 
-        pm.registerEvents(new EventListeners(this), this);
+        pm.registerEvents(new MiningEventsListener(this, blocks, moneyConfiguration.wrongJobPenalty, moneyConfiguration.baseEfficiency), this);
+        pm.registerEvents(new HuntingEventsListener(this, entities, moneyConfiguration.wrongJobPenalty, moneyConfiguration.baseEfficiency), this);
+        pm.registerEvents(new PlayerEventsListener(this), this);
+
         pm.registerEvents(jobSelectionView, this);
         pm.registerEvents(bankerView, this);
         pm.registerEvents(smithView, this);
@@ -61,6 +66,7 @@ public final class Money extends JavaPlugin {
             @Override
             public void run() {
                 saveCoinsData();
+                getLogger().log(Level.INFO, "Data saved.");
             }
         }.runTaskTimer(this, 1200L * 5, 1200L * 5);
     }
@@ -75,20 +81,12 @@ public final class Money extends JavaPlugin {
         return smithView;
     }
 
-    public Map<EntityType, Float> getEntities() {
-        return entities;
-    }
-
-    public MoneyConfiguration getMoneyConfiguration() {
-        return moneyConfiguration;
-    }
-
     @Override
     public void onDisable() {
         saveCoinsData();
     }
 
-    private void loadBlocksToCoins() {
+    private void loadBlocks() {
         ConfigurationSection configSection = getConfig().getConfigurationSection(blocksSection);
 
         if (configSection == null) {
@@ -147,15 +145,8 @@ public final class Money extends JavaPlugin {
         return players.getOrDefault(player.getUniqueId(), new PlayerData());
     }
 
-    public void addPlayerCoins(final Player player, final Float coins) {
-        PlayerData playerData = getPlayerData(player);
-        playerData.addCoins(coins);
-
+    public void updatePlayerData(final Player player, final PlayerData playerData) {
         players.put(player.getUniqueId(), playerData);
-    }
-
-    public boolean hasPlayerProfession(final Player player, final Profession profession) {
-        return getPlayerData(player).hasProfession(profession);
     }
 
     public void addNewEntity(final EntityType type, final Float value) {

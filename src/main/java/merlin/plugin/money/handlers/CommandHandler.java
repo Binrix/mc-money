@@ -31,7 +31,7 @@ public class CommandHandler {
                 return true;
             }
 
-            printListOfPlayersToChat(player, sortListOfPlayersByCoins(players));
+            printListOfPlayersToChat(player, Helpers.sortListOfPlayersByCoins(players));
 
             return true;
         } catch (Exception exception) {
@@ -130,7 +130,7 @@ public class CommandHandler {
                 return true;
             }
 
-            final List<Map.Entry<Material, Float>> sortedBlocks = sortListOfBlocksByCoins(blocksToCoins);
+            final List<Map.Entry<Material, Float>> sortedBlocks = Helpers.sortListOfBlocksByCoins(blocksToCoins);
             for(Map.Entry<Material, Float> block : sortedBlocks) {
                 player.sendMessage("Block: " + ChatColor.DARK_AQUA + block.getKey().name() + ChatColor.WHITE + ", value: " + ChatColor.GOLD + block.getValue() + " Coins");
             }
@@ -164,46 +164,13 @@ public class CommandHandler {
             }
         } else if(args.length == 2 && (args[0].equalsIgnoreCase("blocks") || args[0].equalsIgnoreCase("npc"))) {
             completions.add("add");
-        } else if(args.length == 3 && args[1].equalsIgnoreCase("add")) {
+        } else if(args.length == 3 && args[0].equalsIgnoreCase("npc") && args[1].equalsIgnoreCase("add")) {
             for(NPCType type : NPCType.values()) {
                 completions.add(type.name().toLowerCase());
             }
         }
 
         return completions;
-    }
-
-    private static List<Map.Entry<UUID, PlayerData>> sortListOfPlayersByCoins(final Map<UUID, PlayerData> players) {
-        List<Map.Entry<UUID, PlayerData>> topPlayers = new ArrayList<>(players.entrySet());
-        topPlayers.sort(Map.Entry.comparingByValue((p1, p2) -> {
-            final float totalCoins1 = p1.getCoinsInWallet() + p1.getCoinsInAccount();
-            final float totalCoins2 = p2.getCoinsInWallet() + p2.getCoinsInAccount();
-
-            if(totalCoins1 > totalCoins2){
-                return -1;
-            } else if(totalCoins1 < totalCoins2) {
-                return 1;
-            }
-
-            return 0;
-        }));
-
-        return topPlayers.stream().limit(5).collect(Collectors.toList());
-    }
-
-    private static List<Map.Entry<Material, Float>> sortListOfBlocksByCoins(final Map<Material, Float> blocks) {
-        List<Map.Entry<Material, Float>> sortedBlocks = new ArrayList<>(blocks.entrySet());
-        sortedBlocks.sort(Map.Entry.comparingByValue((b1, b2) -> {
-            if(b1 > b2) {
-                return -1;
-            } else if(b1 < b2) {
-                return 1;
-            }
-
-            return 0;
-        }));
-
-        return sortedBlocks;
     }
 
     private static void printListOfPlayersToChat(final Player player, final List<Map.Entry<UUID, PlayerData>> topPlayers) {
